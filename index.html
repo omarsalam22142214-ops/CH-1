@@ -2,100 +2,116 @@
 <html lang="ar" dir="rtl"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع البث المباشر المطور جداً</title>
+    <title>مشغل البث المباشر</title>
     <style>
+        /* تحويل الصفحة لمشغل فقط بدون هوامش */
         body {
-            background-color: #111;
+            background-color: #000;
             color: white;
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            height: 100vh; /* بياخد طول الشاشة كلها */
+            overflow: hidden; /* بيمنع ظهور سكرول للصفحة كلها */
         }
 
+        /* شريط التحكم العلوي للمشغل */
+        .player-header {
+            background-color: #111;
+            border-bottom: 2px solid #222;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* تصغير الزراير عشان تناسب شريط المشغل */
         .admin-btn {
             background-color: #f39c12;
             color: #000;
             border: none;
-            padding: 10px 15px;
-            font-size: 16px;
-            border-radius: 5px;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            margin-bottom: 20px;
             transition: 0.3s;
         }
 
-        /* تنسيق زرار مانع الإعلانات الجديد */
         .adblock-btn {
             background-color: #27ae60;
             color: white;
             border: none;
-            padding: 10px 15px;
-            font-size: 16px;
-            border-radius: 5px;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            margin-right: 10px;
-            margin-bottom: 20px;
             transition: 0.3s;
         }
         .adblock-btn.disabled { background-color: #c0392b; }
 
+        /* شريط القنوات قابل للتمرير لو القنوات كترت */
         .tabs-container {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-            max-width: 800px;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 5px;
         }
+        
+        /* تجميل شكل السكرول بار بتاع القنوات */
+        .tabs-container::-webkit-scrollbar { height: 6px; }
+        .tabs-container::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
 
         .tab-btn {
             background-color: #008b8b;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
+            padding: 6px 15px;
+            font-size: 14px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s;
+            flex-shrink: 0; /* بيمنع الزرار يكش */
         }
 
         .tab-btn.active {
             background-color: #004d4d;
-            border: 2px solid #fff;
+            border: 1px solid #fff;
         }
 
         .tab-btn.hd { background-color: #b22222; }
 
-        /* تعديلات شاشة العرض وزرار الإغلاق والفتح الخارجي */
+        /* تعديل الفيديو عشان يملى باقي المساحة */
         .video-wrapper {
             position: relative;
             width: 100%;
-            max-width: 800px;
+            flex-grow: 1; /* بياخد كل المساحة المتبقية من الشاشة */
             background-color: #000;
-            border: 2px solid #333;
-            border-radius: 8px;
-            overflow: hidden;
-            aspect-ratio: 16/9;
         }
 
         .close-vid-btn {
             position: absolute;
             top: 10px;
-            left: 10px; /* على الشمال فوق */
+            left: 10px; 
             background-color: rgba(255, 0, 0, 0.8);
             color: white;
             border: 2px solid white;
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            font-size: 16px;
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             z-index: 10;
@@ -106,18 +122,17 @@
         }
         .close-vid-btn:hover { background-color: red; transform: scale(1.1); }
 
-        /* تصميم زرار الفتح الخارجي الجديد */
         .external-vid-btn {
             position: absolute;
             top: 10px;
-            right: 10px; /* على اليمين فوق */
-            background-color: rgba(41, 128, 185, 0.8); /* لون أزرق */
+            right: 10px; 
+            background-color: rgba(41, 128, 185, 0.8); 
             color: white;
             border: 2px solid white;
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            font-size: 16px;
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             z-index: 10;
@@ -134,12 +149,12 @@
             border: none;
         }
 
-        /* لوحة التعديل */
+        /* لوحة التعديل زي ما هي */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.9);
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -152,10 +167,11 @@
             width: 90%;
             max-width: 450px;
             border: 1px solid #444;
+            color: white;
         }
 
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #ccc; }
+        .form-group label { display: block; margin-bottom: 5px; color: #ccc; font-size: 14px;}
         .form-group input, .form-group select {
             width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #555;
             background-color: #333; color: white; box-sizing: border-box;
@@ -182,31 +198,31 @@
 </head>
 <body>
 
-    <div>
-        <button class="admin-btn" onclick="openModal()">⚙️ لوحة التحكم والتعديل</button>
-        <button id="adblockBtn" class="adblock-btn" onclick="toggleAdBlock()">🛡️ مانع النوافذ (شغال)</button>
-        <button id="closeVid" class="close-vid-btn" onclick="closePlayer()" title="إغلاق المشغل" style="display: none;">✖</button>
-        <button id="externalVid" class="external-vid-btn" onclick="openExternal()" title="فتح في نافذة خارجية" style="display: none;">↗️</button>
-    </div>
+    <div class="player-header">
+        <div class="top-controls">
+            <button class="admin-btn" onclick="openModal()">⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️⚙️ التعديل</button>
+            <button id="adblockBtn" class="adblock-btn disabled" onclick="toggleAdBlock()">🛡️ المانع (مقفول)</button>
+        </div>
 
-    <div class="tabs-container" id="mainTabs">
-        <button id="btn1" class="tab-btn" data-link="https://15.wwwkoora.com/albaplayer/bein-sports-hd-1/" onclick="playStream(this)">قناة 1 بس</button>
-        <button id="btn2" class="tab-btn" data-link="https://p4.panda-live.live/albaplayer/bein-1/" onclick="playStream(this)">1</button>
-        <button id="btn3" class="tab-btn" data-link="https://tv12.koora-plus.top/chtv/ch1.php" onclick="playStream(this)">1</button>
-        <button id="btn4" class="tab-btn hd" data-link="https://12.sportsurges.online/albaplayer/bein-1/?serv=1" onclick="playStream(this)">1</button>
-        <button id="btn_new_1775313046421" class="tab-btn" data-link="https://plir.bein4kora.com/albaplayer/1bnnn1/" onclick="playStream(this)">1</button>
-        <button id="btn_new_1775313087333" class="tab-btn" data-link="https://1.simosports.live/splayer/Live1.php" onclick="playStream(this)">1</button>
-        <button id="btn_new_1775313110293" class="tab-btn" data-link="https://spoort.en-yalla.live/albaplayer/sport1/" onclick="playStream(this)">1</button>
-        <button id="btn_new_1775313127961" class="tab-btn" data-link="https://bbb.yallashoot2026.com/albaplayer/sports-1/" onclick="playStream(this)">1</button>
-        <button id="btn_new_1775313144818" class="tab-btn" data-link="https://a8.sia-koora.live/albaplayer/bein-1/" onclick="playStream(this)">1</button>
-        <button id="btn_new_1775313162951" class="tab-btn" data-link="https://vip.kora-top.zip/frame.php?ch=b1&amp;p=12&amp;token=3ee4a19b-5195-4718-9f39-1641c06163cf&amp;kt=1774719427" onclick="playStream(this)">1</button>
+        <div class="tabs-container" id="mainTabs">
+            <button id="btn1" class="tab-btn" data-link="https://15.wwwkoora.com/albaplayer/bein-sports-hd-1/" onclick="playStream(this)">قناة 1 بس</button>
+            <button id="btn2" class="tab-btn" data-link="https://p4.panda-live.live/albaplayer/bein-1/" onclick="playStream(this)">1</button>
+            <button id="btn3" class="tab-btn" data-link="https://tv12.koora-plus.top/chtv/ch1.php" onclick="playStream(this)">1</button>
+            <button id="btn4" class="tab-btn hd" data-link="https://12.sportsurges.online/albaplayer/bein-1/?serv=1" onclick="playStream(this)">1</button>
+            <button id="btn_new_1775313046421" class="tab-btn" data-link="https://plir.bein4kora.com/albaplayer/1bnnn1/" onclick="playStream(this)">1</button>
+            <button id="btn_new_1775313087333" class="tab-btn" data-link="https://1.simosports.live/splayer/Live1.php" onclick="playStream(this)">1</button>
+            <button id="btn_new_1775313110293" class="tab-btn" data-link="https://spoort.en-yalla.live/albaplayer/sport1/" onclick="playStream(this)">1</button>
+            <button id="btn_new_1775313127961" class="tab-btn" data-link="https://bbb.yallashoot2026.com/albaplayer/sports-1/" onclick="playStream(this)">1</button>
+            <button id="btn_new_1775313144818" class="tab-btn" data-link="https://a8.sia-koora.live/albaplayer/bein-1/" onclick="playStream(this)">1</button>
+            <button id="btn_new_1775313162951" class="tab-btn" data-link="https://vip.kora-top.zip/frame.php?ch=b1&amp;p=12&amp;token=3ee4a19b-5195-4718-9f39-1641c06163cf&amp;kt=1774719427" onclick="playStream(this)">1</button><button id="externalVid" class="external-vid-btn" onclick="openExternal()" title="فتح في نافذة خارجية" style="display: none;">↗️</button><button id="closeVid" class="close-vid-btn" onclick="closePlayer()" title="إغلاق المشغل" style="display: none;">✖</button>
+        </div>
     </div>
 
     <div class="video-wrapper">
         
         
         
-        <iframe id="videoPlayer" src="" allowfullscreen="" sandbox="allow-scripts allow-same-origin"></iframe>
+        <iframe id="videoPlayer" src="" allowfullscreen=""></iframe>
     </div>
 
     <div id="settingsModal" class="modal" style="display: none;">
@@ -253,7 +269,7 @@
     </div>
 
     <script>
-        // دالة مانع الإعلانات الجديدة
+        // دالة مانع الإعلانات
         let adblockEnabled = true;
         function toggleAdBlock() {
             let iframe = document.getElementById('videoPlayer');
@@ -262,11 +278,11 @@
             
             if (adblockEnabled) {
                 iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-                btn.innerText = '🛡️ مانع النوافذ (شغال)';
+                btn.innerText = '🛡️ المانع (شغال)';
                 btn.classList.remove('disabled');
             } else {
                 iframe.removeAttribute('sandbox');
-                btn.innerText = '🛡️ مانع النوافذ (مقفول)';
+                btn.innerText = '🛡️ المانع (مقفول)';
                 btn.classList.add('disabled');
             }
             
@@ -276,12 +292,11 @@
             }
         }
 
-        // تشغيل البث وإظهار الزراير
+        // تشغيل البث
         function playStream(btnElement) {
             let link = btnElement.getAttribute('data-link');
             document.getElementById('videoPlayer').src = link;
             
-            // بنظهر زرار الـ ✖ وزرار الفتح الخارجي
             document.getElementById('closeVid').style.display = 'flex';
             document.getElementById('externalVid').style.display = 'flex';
 
@@ -292,22 +307,16 @@
         // إغلاق المشغل
         function closePlayer() {
             document.getElementById('videoPlayer').src = "";
-            
-            // بنخفي الزراير تاني
             document.getElementById('closeVid').style.display = 'none';
             document.getElementById('externalVid').style.display = 'none';
-            
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         }
 
-        // الدالة الجديدة لفتح البث في صفحة خارجية
+        // الفتح الخارجي
         function openExternal() {
-            // بنسحب اللينك اللي موجود حالياً جوه الـ iframe
             let currentLink = document.getElementById('videoPlayer').src;
-            
-            // بنتأكد إن فيه لينك شغال فعلاً قبل ما نفتح
             if (currentLink && currentLink.trim() !== "" && currentLink !== window.location.href) {
-                window.open(currentLink, '_blank'); // الكود ده هو اللي بيفتح في Tab جديد
+                window.open(currentLink, '_blank'); 
             } else {
                 alert("مفيش بث شغال حالياً عشان نفتحه!");
             }
@@ -383,7 +392,7 @@
                 let blob = new Blob([content], { type: 'text/html' });
                 let a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = 'my_koora_site.html';
+                a.download = 'my_player.html';
                 a.click();
             }, 100);
         }
