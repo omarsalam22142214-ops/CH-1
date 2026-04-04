@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع البث المباشر المطور جداً</title>
+    <style>
+        body {
+            background-color: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .admin-btn {
+            background-color: #f39c12;
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        /* تنسيق زرار مانع الإعلانات الجديد */
+        .adblock-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .adblock-btn.disabled { background-color: #c0392b; }
+
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .tab-btn {
+            background-color: #008b8b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background-color: #004d4d;
+            border: 2px solid #fff;
+        }
+
+        .tab-btn.hd { background-color: #b22222; }
+
+        /* تعديلات شاشة العرض وزرار الإغلاق والفتح الخارجي */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            background-color: #000;
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .close-vid-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px; /* على الشمال فوق */
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .close-vid-btn:hover { background-color: red; transform: scale(1.1); }
+
+        /* تصميم زرار الفتح الخارجي الجديد */
+        .external-vid-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px; /* على اليمين فوق */
+            background-color: rgba(41, 128, 185, 0.8); /* لون أزرق */
+            color: white;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .external-vid-btn:hover { background-color: #2980b9; transform: scale(1.1); }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* لوحة التعديل */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid #444;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #ccc; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #555;
+            background-color: #333; color: white; box-sizing: border-box;
+        }
+
+        .modal-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
+        .action-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; }
+        
+        .save-btn { background-color: #27ae60; } 
+        .close-btn { background-color: #7f8c8d; } 
+        
+        .export-section {
+            border-top: 1px solid #444;
+            padding-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .add-channel-btn { background-color: #d35400; color: white; width: 100%; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .download-btn { background-color: #2980b9; color: white; flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .copy-btn { background-color: #8e44ad; color: white; flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div>
+        <button class="admin-btn" onclick="openModal()">⚙️ لوحة التحكم والتعديل</button>
+        <button id="adblockBtn" class="adblock-btn" onclick="toggleAdBlock()">🛡️ مانع النوافذ (شغال)</button>
+        <button id="closeVid" class="close-vid-btn" onclick="closePlayer()" title="إغلاق المشغل" style="display: none;">✖</button>
+        <button id="externalVid" class="external-vid-btn" onclick="openExternal()" title="فتح في نافذة خارجية" style="display: none;">↗️</button>
+    </div>
+
+    <div class="tabs-container" id="mainTabs">
+        <button id="btn1" class="tab-btn" data-link="https://15.wwwkoora.com/albaplayer/bein-sports-hd-1/" onclick="playStream(this)">1</button>
+        <button id="btn2" class="tab-btn" data-link="https://p4.panda-live.live/albaplayer/bein-1/" onclick="playStream(this)">1</button>
+        <button id="btn3" class="tab-btn" data-link="https://tv12.koora-plus.top/chtv/ch1.php" onclick="playStream(this)">1</button>
+        <button id="btn4" class="tab-btn hd" data-link="https://12.sportsurges.online/albaplayer/bein-1/?serv=1" onclick="playStream(this)">1</button>
+        <button id="btn_new_1775313046421" class="tab-btn" data-link="https://plir.bein4kora.com/albaplayer/1bnnn1/" onclick="playStream(this)">1</button>
+        <button id="btn_new_1775313087333" class="tab-btn" data-link="https://1.simosports.live/splayer/Live1.php" onclick="playStream(this)">1</button>
+        <button id="btn_new_1775313110293" class="tab-btn" data-link="https://spoort.en-yalla.live/albaplayer/sport1/" onclick="playStream(this)">1</button>
+        <button id="btn_new_1775313127961" class="tab-btn" data-link="https://bbb.yallashoot2026.com/albaplayer/sports-1/" onclick="playStream(this)">1</button>
+        <button id="btn_new_1775313144818" class="tab-btn" data-link="https://a8.sia-koora.live/albaplayer/bein-1/" onclick="playStream(this)">1</button>
+        <button id="btn_new_1775313162951" class="tab-btn" data-link="https://vip.kora-top.zip/frame.php?ch=b1&amp;p=12&amp;token=3ee4a19b-5195-4718-9f39-1641c06163cf&amp;kt=1774719427" onclick="playStream(this)">1</button>
+    </div>
+
+    <div class="video-wrapper">
+        
+        
+        
+        <iframe id="videoPlayer" src="" allowfullscreen="" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+
+    <div id="settingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3 style="margin-top:0">إعدادات البث المباشر</h3>
+            
+            <div class="form-group">
+                <label>اختار الزرار للتعديل:</label>
+                <select id="buttonSelect" onchange="loadButtonData()">
+                    <option value="btn1">1</option>
+                    <option value="btn2">1</option>
+                    <option value="btn3">1</option>
+                    <option value="btn4">1</option>
+                    <option value="btn_new_1775313046421">1</option>
+                    <option value="btn_new_1775313087333">1</option>
+                    <option value="btn_new_1775313110293">1</option>
+                    <option value="btn_new_1775313127961">1</option>
+                    <option value="btn_new_1775313144818">1</option>
+                    <option value="btn_new_1775313162951">1</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>الاسم الجديد:</label>
+                <input type="text" id="editName">
+            </div>
+
+            <div class="form-group">
+                <label>اللينك الجديد:</label>
+                <input type="text" id="editLink">
+            </div>
+
+            <div class="modal-buttons">
+                <button class="action-btn save-btn" onclick="applyChanges()">تطبيق التعديل</button>
+                <button class="action-btn close-btn" onclick="closeModal()">إغلاق اللوحة</button>
+            </div>
+
+            <div class="export-section">
+                <button class="add-channel-btn" onclick="addNewChannel()">➕ إضافة قناة بث جديدة</button>
+                <button class="download-btn" onclick="downloadFullFile()">💾 حفظ الملف</button>
+                <button class="copy-btn" onclick="copyFullCode()">📋 نسخ الكود</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // دالة مانع الإعلانات الجديدة
+        let adblockEnabled = true;
+        function toggleAdBlock() {
+            let iframe = document.getElementById('videoPlayer');
+            let btn = document.getElementById('adblockBtn');
+            adblockEnabled = !adblockEnabled;
+            
+            if (adblockEnabled) {
+                iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+                btn.innerText = '🛡️ مانع النوافذ (شغال)';
+                btn.classList.remove('disabled');
+            } else {
+                iframe.removeAttribute('sandbox');
+                btn.innerText = '🛡️ مانع النوافذ (مقفول)';
+                btn.classList.add('disabled');
+            }
+            
+            let currentSrc = iframe.src;
+            if(currentSrc && currentSrc !== window.location.href) {
+                iframe.src = currentSrc;
+            }
+        }
+
+        // تشغيل البث وإظهار الزراير
+        function playStream(btnElement) {
+            let link = btnElement.getAttribute('data-link');
+            document.getElementById('videoPlayer').src = link;
+            
+            // بنظهر زرار الـ ✖ وزرار الفتح الخارجي
+            document.getElementById('closeVid').style.display = 'flex';
+            document.getElementById('externalVid').style.display = 'flex';
+
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+
+        // إغلاق المشغل
+        function closePlayer() {
+            document.getElementById('videoPlayer').src = "";
+            
+            // بنخفي الزراير تاني
+            document.getElementById('closeVid').style.display = 'none';
+            document.getElementById('externalVid').style.display = 'none';
+            
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        }
+
+        // الدالة الجديدة لفتح البث في صفحة خارجية
+        function openExternal() {
+            // بنسحب اللينك اللي موجود حالياً جوه الـ iframe
+            let currentLink = document.getElementById('videoPlayer').src;
+            
+            // بنتأكد إن فيه لينك شغال فعلاً قبل ما نفتح
+            if (currentLink && currentLink.trim() !== "" && currentLink !== window.location.href) {
+                window.open(currentLink, '_blank'); // الكود ده هو اللي بيفتح في Tab جديد
+            } else {
+                alert("مفيش بث شغال حالياً عشان نفتحه!");
+            }
+        }
+
+        function openModal() {
+            document.getElementById('settingsModal').style.display = 'flex';
+            loadButtonData();
+        }
+
+        function closeModal() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function loadButtonData() {
+            let id = document.getElementById('buttonSelect').value;
+            let btn = document.getElementById(id);
+            if(btn) {
+                document.getElementById('editName').value = btn.innerText;
+                document.getElementById('editLink').value = btn.getAttribute('data-link');
+            }
+        }
+
+        function applyChanges() {
+            let id = document.getElementById('buttonSelect').value;
+            let btn = document.getElementById(id);
+            let name = document.getElementById('editName').value;
+            let link = document.getElementById('editLink').value;
+
+            btn.innerText = name;
+            btn.setAttribute('data-link', link);
+            
+            let opt = document.querySelector(`#buttonSelect option[value="${id}"]`);
+            if(opt) opt.innerText = name;
+
+            if (btn.classList.contains('active')) playStream(btn);
+            alert("تم تطبيق التعديل بنجاح!");
+        }
+
+        function addNewChannel() {
+            let channelName = prompt("اكتب اسم القناة أو البث الجديد:");
+            if (!channelName || channelName.trim() === "") return;
+
+            let channelLink = prompt("اكتب لينك البث (الرابط):");
+            if (!channelLink) channelLink = "";
+
+            let newId = "btn_new_" + new Date().getTime();
+
+            let newBtn = document.createElement("button");
+            newBtn.id = newId;
+            newBtn.className = "tab-btn";
+            newBtn.setAttribute("data-link", channelLink);
+            newBtn.innerText = channelName;
+            newBtn.setAttribute("onclick", "playStream(this)");
+
+            document.getElementById("mainTabs").appendChild(newBtn);
+
+            let newOption = document.createElement("option");
+            newOption.value = newId;
+            newOption.innerText = channelName;
+            document.getElementById("buttonSelect").appendChild(newOption);
+
+            document.getElementById("buttonSelect").value = newId;
+            loadButtonData();
+
+            alert("تم إضافة القناة بنجاح!");
+        }
+
+        function downloadFullFile() {
+            closeModal(); 
+            setTimeout(() => {
+                let content = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                let blob = new Blob([content], { type: 'text/html' });
+                let a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'my_koora_site.html';
+                a.click();
+            }, 100);
+        }
+
+        function copyFullCode() {
+            closeModal();
+            setTimeout(() => {
+                let content = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                navigator.clipboard.writeText(content).then(() => {
+                    alert("تم نسخ الكود بالكامل!");
+                });
+            }, 100);
+        }
+    </script>
+
+</body></html>
