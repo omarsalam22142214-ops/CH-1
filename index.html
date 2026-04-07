@@ -222,9 +222,9 @@
             <button class="admin-btn" onclick="openModal()">⚙️ التعديل</button>
             
             <div class="nav-buttons">
-                <button id="closeVid" class="close-top-btn" onclick="closePlayer()" style="display: inline-block;">إغلاق ✖</button>
-                <button id="externalVid" class="external-top-btn" onclick="openExternal()" style="display: inline-block;">خارجي ↗</button>
-                <button id="copyLinkBtn" class="copy-top-btn" onclick="copyCurrentLink()" style="display: inline-block;">نسخ الرابط 🔗</button>
+                <button id="closeVid" class="close-top-btn" onclick="closePlayer()" style="display: none;">إغلاق ✖</button>
+                <button id="externalVid" class="external-top-btn" onclick="openExternal()" style="display: none;">خارجي ↗</button>
+                <button id="copyLinkBtn" class="copy-top-btn" onclick="copyCurrentLink()" style="display: none;">نسخ الرابط 🔗</button>
                 
                 <button class="nav-btn" onclick="prevStream()">الســـــــــــــــــــابق ⏮️</button>
                 <button class="nav-btn" onclick="nextStream()">التـــــــــــــــــــــــــــــــــــــــــــــالي ⏭️</button>
@@ -237,7 +237,7 @@
         
         
         <div class="tabs-container" id="mainTabs">
-            <button id="btn_new_1775318967644" class="tab-btn active" data-link="https://livetv.aflam4you.net/zremb472.php?vid=68&amp;aflam_s=1&amp;aflam_w=360&amp;aflam_h=250&amp;aflam_k=11623324" onclick="playStream(this)">BEIN 1</button><button id="btn1" class="tab-btn" data-link="https://15.wwwkoora.com/albaplayer/bein-sports-hd-1/" onclick="playStream(this)">قناة 1 بس</button><button class="auto-fetch-btn" id="autoFetchBtn" onclick="playRandomSportsChannel()">
+            <button id="btn_new_1775318967644" class="tab-btn" data-link="https://livetv.aflam4you.net/zremb472.php?vid=68&amp;aflam_s=1&amp;aflam_w=360&amp;aflam_h=250&amp;aflam_k=11623324" onclick="playStream(this)">BEIN 1</button><button id="btn1" class="tab-btn" data-link="https://15.wwwkoora.com/albaplayer/bein-sports-hd-1/" onclick="playStream(this)">قناة 1 بس</button><button class="auto-fetch-btn" id="autoFetchBtn" onclick="playRandomSportsChannel()">
                 ⚽ اكتشاف قناة رياضية من النت
             </button>
             <button id="btn2" class="tab-btn" data-link="https://p4.panda-live.live/albaplayer/bein-1/" onclick="playStream(this)">1</button>
@@ -253,7 +253,7 @@
     </div>
 
     <div class="video-wrapper">
-        <iframe id="videoPlayer" src="https://livetv.aflam4you.net/zremb472.php?vid=68&amp;aflam_s=1&amp;aflam_w=360&amp;aflam_h=250&amp;aflam_k=11623324" allowfullscreen="" sandbox="allow-scripts allow-same-origin"></iframe>
+        <iframe id="videoPlayer" src="" allowfullscreen="" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
 
     <div id="settingsModal" class="modal" style="display: none;">
