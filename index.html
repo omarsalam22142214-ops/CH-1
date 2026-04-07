@@ -214,7 +214,7 @@
             box-shadow: none;
         }
     </style>
-</head>
+<style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style></head>
 <body>
 
     <div class="player-header">
@@ -239,7 +239,9 @@
         <div class="tabs-container" id="mainTabs">
             <button id="btn_new_1775318967644" class="tab-btn" data-link="https://livetv.aflam4you.net/zremb472.php?vid=68&amp;aflam_s=1&amp;aflam_w=360&amp;aflam_h=250&amp;aflam_k=11623324" onclick="playStream(this)">BEIN 1</button><button id="btn1" class="tab-btn" data-link="https://15.wwwkoora.com/albaplayer/bein-sports-hd-1/" onclick="playStream(this)">قناة 1 بس</button><button class="auto-fetch-btn" id="autoFetchBtn" onclick="playRandomSportsChannel()">
                 ⚽ اكتشاف قناة رياضية من النت
-            </button>
+            </button><button class="auto-fetch-btn" id="loadJsonBtn" onclick="fetchMatchesFromJson()" style="background-color: #2980b9;">
+    🔄 جلب قنوات وماتشات اليوم (من سيرفري)
+</button>
             <button id="btn2" class="tab-btn" data-link="https://p4.panda-live.live/albaplayer/bein-1/" onclick="playStream(this)">1</button>
             <button id="btn3" class="tab-btn" data-link="https://tv12.koora-plus.top/chtv/ch1.php" onclick="playStream(this)">1</button>
             <button id="btn4" class="tab-btn hd" data-link="https://12.sportsurges.online/albaplayer/bein-1/?serv=1" onclick="playStream(this)">1</button>
@@ -262,17 +264,17 @@
             
             <div class="form-group">
                 <label>اختار الزرار للتعديل أو الحذف:</label>
-                <select id="buttonSelect" onchange="loadButtonData()"><option value="btn_new_1775318967644">BEIN 1</option><option value="btn1">قناة 1 بس</option><option value="btn2">1</option><option value="btn3">1</option><option value="btn4">1</option><option value="btn_new_1775313046421">1</option><option value="btn_new_1775313087333">1</option><option value="btn_new_1775313110293">1</option><option value="btn_new_1775313127961">1</option><option value="btn_new_1775313144818">1</option><option value="btn_new_1775313162951">1</option><option value="btn_new_1775318967644">1 1 1</option><option value="btn_new_1775327957708">Fajr 1</option><option value="btn_new_1775330180314">1 1 1 1 1 1</option><option value="btn_new_1775330436423">Alw 1</option><option value="btn_new_1775397799736">test</option><option value="btn_new_1775398220157">live site</option></select>
+                <select id="buttonSelect" onchange="loadButtonData()" data-ddg-inputtype="unknown"><option value="btn_new_1775318967644">BEIN 1</option><option value="btn1">قناة 1 بس</option><option value="btn2">1</option><option value="btn3">1</option><option value="btn4">1</option><option value="btn_new_1775313046421">1</option><option value="btn_new_1775313087333">1</option><option value="btn_new_1775313110293">1</option><option value="btn_new_1775313127961">1</option><option value="btn_new_1775313144818">1</option><option value="btn_new_1775313162951">1</option><option value="btn_new_1775318967644">1 1 1</option><option value="btn_new_1775327957708">Fajr 1</option><option value="btn_new_1775330180314">1 1 1 1 1 1</option><option value="btn_new_1775330436423">Alw 1</option><option value="btn_new_1775397799736">test</option><option value="btn_new_1775398220157">live site</option></select>
             </div>
 
             <div class="form-group">
                 <label>الاسم الجديد:</label>
-                <input type="text" id="editName">
+                <input type="text" id="editName" data-ddg-inputtype="unknown">
             </div>
 
             <div class="form-group">
                 <label>اللينك الجديد:</label>
-                <input type="text" id="editLink">
+                <input type="text" id="editLink" data-ddg-inputtype="unknown">
             </div>
 
             <div class="modal-buttons">
@@ -594,6 +596,63 @@ function playRandomSportsChannel() {
         
     }, 500); 
 }
-    </script>
+    
+// دالة سحب الماتشات والقنوات من ملف matches.json الخاص بيك
+async function fetchMatchesFromJson() {
+    const btn = document.getElementById('loadJsonBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "⏳ جاري تحميل القنوات...";
+    btn.disabled = true;
+
+    try {
+        // حطينا Date().getTime() عشان نمنع الكاش، والمتصفح دايماً يجيب أحدث تعديل إنت عملته في الملف
+        let response = await fetch('matches.json?t=' + new Date().getTime());
+        
+        if (!response.ok) {
+            throw new Error('ملف matches.json مش موجود أو فيه مشكلة.');
+        }
+
+        let matchesData = await response.json();
+
+        if (matchesData.length === 0) {
+            alert("ملف القنوات فاضي حالياً، ضيف فيه لينكات الأول من GitHub!");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            return;
+        }
+
+        let addedCount = 0;
+
+        // مسح القنوات القديمة اللي اتسحبت قبل كده (عشان لو حدثت الملف وماتتكررش)
+        document.querySelectorAll('.json-added-btn').forEach(b => b.remove());
+
+        // إنشاء الزراير للقنوات والماتشات الجديدة
+        matchesData.forEach((match, index) => {
+            let newId = "btn_json_" + new Date().getTime() + index;
+            let newBtn = document.createElement("button");
+            newBtn.id = newId;
+            // ضفنا كلاس json-added-btn عشان نقدر نميزهم ونمسحهم وقت التحديث
+            newBtn.className = "tab-btn json-added-btn"; 
+            newBtn.setAttribute("data-link", match.url);
+            newBtn.innerText = match.name; 
+            newBtn.setAttribute("onclick", "playStream(this)");
+
+            document.getElementById("mainTabs").appendChild(newBtn);
+            addedCount++;
+        });
+
+        alert(`تم تحميل ${addedCount} قناة/ماتش من ملفك بنجاح! ✅`);
+        populateSelectMenu();
+
+    } catch (error) {
+        console.error("Error loading JSON:", error);
+        alert("حصلت مشكلة! اتأكد إنك عملت ملف matches.json صح ورفعته جنب الـ index.html");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+</script>
+
 
 </body></html>
