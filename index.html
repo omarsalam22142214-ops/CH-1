@@ -17,7 +17,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: auto;
+            overflow: hidden; 
         }
 
         /* شريط التحكم العلوي للمشغل */
@@ -154,6 +154,18 @@
             width: 100%;
             flex: 1; 
             background-color: #000;
+            --zoom-level: 1; /* المتغير المسؤول عن الزوم */
+        }
+
+        .video-wrapper iframe,
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            transform: scale(var(--zoom-level));
+            transition: transform 0.3s ease-in-out;
+            transform-origin: center center;
         }
 
         .video-wrapper.rotated iframe,
@@ -163,14 +175,8 @@
             left: 50%;
             width: calc(100vh - 75px);
             height: 100vw;
-            transform: translate(-50%, -50%) rotate(90deg);
-        }
-
-        iframe, video {
-            width: 100%;
-            height: 100%;
-            border: none;
-            outline: none;
+            /* دمج الزوم مع التدوير عشان ميحصلش أي خطأ في الأبعاد */
+            transform: translate(-50%, -50%) rotate(90deg) scale(var(--zoom-level));
         }
 
         /* إخفاء المشغلات افتراضياً حتى يتم الاختيار */
@@ -333,6 +339,12 @@
                     <input type="number" id="autoSwitchIntervalInput" value="20" min="5" max="60" onchange="updateAutoSwitchInterval()" data-ddg-inputtype="unknown">
                 </div>
 
+                <!-- تم إضافة زراير الزوم هنا بتنسيق أزرار الشريط -->
+                <button id="zoomInBtn" class="nav-btn" style="background-color: #34495e;" title="تكبير">تكبير ➕</button>
+                <button id="zoomOutBtn" class="nav-btn" style="background-color: #34495e;" title="تصغير">تصغير ➖</button>
+                <button id="zoomResetBtn" class="nav-btn" style="background-color: #7f8c8d; color: white;" title="الوضع الافتراضي">100%</button>
+
+                <!-- الإبقاء على حالة display: none; الافتراضية عشان ميظهروش إلا لما تشغل قناة -->
                 <button id="closeVid" class="close-top-btn" onclick="closePlayer()" style="display: none;">إغلاق ✖</button>
                 <button id="externalVid" class="external-top-btn" onclick="openExternal()" style="display: none;">خارجي ↗</button>
                 <button id="copyLinkBtn" class="copy-top-btn" onclick="copyCurrentLink()" style="display: none;">نسخ الرابط 🔗</button>
@@ -342,11 +354,11 @@
                 <button class="nav-btn" onclick="prevStream()">الســـــــــــــــــــابق ⏮️</button>
                 <button class="nav-btn" onclick="nextStream()">التـــــــــــــــــــــــــــــــــــــــــــــالي ⏭️</button>
                 <button class="rotate-btn" onclick="toggleRotation()">تدوير 🔄</button>
-                <!-- تعديل: زرار Deny Popups الأول -->
+                <!-- زرار Deny Popups الأول -->
                 <button class="adblock-btn deny-btn" onclick="toggleDenyPopups()">🚫 Deny Popups (مفعل)</button>
             </div>
 
-            <!-- تعديل: زرار Deny Popups الثاني -->
+            <!-- زرار Deny Popups الثاني -->
             <button class="adblock-btn deny-btn" onclick="toggleDenyPopups()">🚫 Deny Popups (مفعل)</button>
         </div>
 
@@ -475,10 +487,11 @@
 <button id="btn_new_1777746738286_5" class="tab-btn" data-link="https://plir.bein4kora.com/albaplayer/1bnnn6/" data-open="internal" onclick="playStream(this)">+ 6</button>
 <button id="btn_new_1777746738286_6" class="tab-btn" data-link="https://plir.bein4kora.com/albaplayer/1bnnn7/" data-open="internal" onclick="playStream(this)">+ 7</button>
 <button id="btn_new_1777746738286_7" class="tab-btn" data-link="https://plir.bein4kora.com/albaplayer/1bnnn8/" data-open="internal" onclick="playStream(this)">+ 8</button>
-<button id="btn_new_1777746738286_8" class="tab-btn" data-link="https://plir.bein4kora.com/albaplayer/1bnnn9/" data-open="internal" onclick="playStream(this)">+ 9</button></div>
+<button id="btn_new_1777746738286_8" class="tab-btn" data-link="https://plir.bein4kora.com/albaplayer/1bnnn9/" data-open="internal" onclick="playStream(this)">+ 9</button>
+</div>
     </div>
 
-    <div class="video-wrapper">
+    <div class="video-wrapper" style="--zoom-level: 1;">
         <iframe id="iframePlayer" src="" allowfullscreen="" style="display: none;" sandbox="allow-scripts allow-same-origin"></iframe>
         <video id="videoPlayer" controls="" autoplay="" playsinline="" style="display: none;"></video>
     </div>
@@ -546,6 +559,33 @@
         let autoSwitchInterval = null; 
         let remainingSeconds = 20; 
         let activeLinkType = 'iframe'; 
+
+        // === تفعيل الزوم ===
+        let currentZoom = 1;
+        const zoomStep = 0.1;
+
+        document.getElementById('zoomInBtn').addEventListener('click', () => {
+            currentZoom += zoomStep;
+            updateZoom();
+        });
+
+        document.getElementById('zoomOutBtn').addEventListener('click', () => {
+            if (currentZoom > 0.3) { 
+                currentZoom -= zoomStep;
+                updateZoom();
+            }
+        });
+
+        document.getElementById('zoomResetBtn').addEventListener('click', () => {
+            currentZoom = 1;
+            updateZoom();
+        });
+
+        function updateZoom() {
+            document.querySelector('.video-wrapper').style.setProperty('--zoom-level', currentZoom);
+            document.getElementById('zoomResetBtn').innerText = Math.round(currentZoom * 100) + '%';
+        }
+        // ==================
 
         // دالة لتحديث الثواني المختارة والتأكد من الحدود
         function updateAutoSwitchInterval() {
@@ -731,22 +771,19 @@
             if(firstBtn) playStream(firstBtn);
         };
 
-        // التعديل هنا: برمجة زرار منع النوافذ المنبثقة (Deny Popups)
         let denyPopupsEnabled = true;
         function toggleDenyPopups() {
             let iframe = document.getElementById('iframePlayer');
-            let btns = document.querySelectorAll('.deny-btn'); // بيستهدف الزرارين سوا
+            let btns = document.querySelectorAll('.deny-btn');
             denyPopupsEnabled = !denyPopupsEnabled;
             
             if (denyPopupsEnabled) {
-                // تفعيل المنع: نحط خاصية الـ sandbox
                 iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
                 btns.forEach(btn => {
                     btn.innerText = '🚫 Deny Popups (مفعل)';
                     btn.classList.remove('disabled');
                 });
             } else {
-                // إلغاء المنع: نشيل الـ sandbox عشان الـ iframe يفتح اللي هو عايزه
                 iframe.removeAttribute('sandbox');
                 btns.forEach(btn => {
                     btn.innerText = '⚠️ Deny Popups (ملغي)';
@@ -769,6 +806,10 @@
                 window.open(originalLink, '_blank');
                 return; 
             }
+
+            // إعادة تعيين الزوم مع كل قناة جديدة
+            currentZoom = 1;
+            updateZoom();
 
             let iframe = document.getElementById('iframePlayer');
             let video = document.getElementById('videoPlayer');
