@@ -22,14 +22,14 @@
 
         /* شريط التحكم العلوي للمشغل */
         .player-header {
-            position: absolute; /* تعديل: خلى الشريط طايف فوق الفيديو */
+            position: absolute; 
             top: 0;
             left: 0;
             width: 100%;
             box-sizing: border-box;
             z-index: 100;
-            background-color: rgba(17, 17, 17, 0.5); /* تعديل: خلفية شفافة */
-            backdrop-filter: blur(8px); /* تعديل: تأثير زجاجي */
+            background-color: rgba(17, 17, 17, 0.5); 
+            backdrop-filter: blur(8px); 
             -webkit-backdrop-filter: blur(8px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding: 8px 10px;
@@ -152,7 +152,7 @@
         .video-wrapper {
             position: relative;
             width: 100%;
-            flex: 1; /* تعديل: عشان يملى الشاشة ورا الشريط الشفاف */
+            flex: 1; 
             background-color: #000;
         }
 
@@ -265,7 +265,7 @@
             bottom: -100px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(26, 26, 26, 0.85); /* تعديل: شريط التحديد برضه شفاف زجاجي */
+            background-color: rgba(26, 26, 26, 0.85); 
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border: 2px solid rgba(243, 156, 18, 0.7);
@@ -317,7 +317,7 @@
 <style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style><style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style></head>
 <body>
 
-    <button id="toggleHeaderBtn" class="toggle-header-btn" onclick="toggleHeaderVisibility()">إخفاء  🔼</button>
+    <button id="toggleHeaderBtn" class="toggle-header-btn" onclick="toggleHeaderVisibility()">إخفاء الشريط 🔼</button>
 
     <div class="player-header" id="mainPlayerHeader" style="display: flex;">
         <div class="top-controls">
@@ -342,10 +342,12 @@
                 <button class="nav-btn" onclick="prevStream()">الســـــــــــــــــــابق ⏮️</button>
                 <button class="nav-btn" onclick="nextStream()">التـــــــــــــــــــــــــــــــــــــــــــــالي ⏭️</button>
                 <button class="rotate-btn" onclick="toggleRotation()">تدوير 🔄</button>
-                <button id="adblockBtn" class="adblock-btn" onclick="toggleAdBlock()">🛡️ المانع (شغال)</button>
+                <!-- تعديل: زرار Deny Popups الأول -->
+                <button class="adblock-btn deny-btn" onclick="toggleDenyPopups()">🚫 Deny Popups (مفعل)</button>
             </div>
 
-            <button id="adblockBtn" class="adblock-btn" onclick="toggleAdBlock()">🛡️ المانع (شغال)</button>
+            <!-- تعديل: زرار Deny Popups الثاني -->
+            <button class="adblock-btn deny-btn" onclick="toggleDenyPopups()">🚫 Deny Popups (مفعل)</button>
         </div>
 
         <div class="tabs-container" id="mainTabs"><button id="btn1" class="tab-btn" data-link="https://livetv.aflam4you.net/zremb472.php?vid=68&amp;aflam_s=1&amp;aflam_w=360&amp;aflam_h=250&amp;aflam_k=11623324" onclick="playStream(this)" data-open="internal">قناة 1 بس</button>
@@ -729,19 +731,27 @@
             if(firstBtn) playStream(firstBtn);
         };
 
-        let adblockEnabled = true;
-        function toggleAdBlock() {
+        // التعديل هنا: برمجة زرار منع النوافذ المنبثقة (Deny Popups)
+        let denyPopupsEnabled = true;
+        function toggleDenyPopups() {
             let iframe = document.getElementById('iframePlayer');
-            let btn = document.getElementById('adblockBtn');
-            adblockEnabled = !adblockEnabled;
-            if (adblockEnabled) {
+            let btns = document.querySelectorAll('.deny-btn'); // بيستهدف الزرارين سوا
+            denyPopupsEnabled = !denyPopupsEnabled;
+            
+            if (denyPopupsEnabled) {
+                // تفعيل المنع: نحط خاصية الـ sandbox
                 iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-                btn.innerText = '🛡️ المانع (شغال)';
-                btn.classList.remove('disabled');
+                btns.forEach(btn => {
+                    btn.innerText = '🚫 Deny Popups (مفعل)';
+                    btn.classList.remove('disabled');
+                });
             } else {
+                // إلغاء المنع: نشيل الـ sandbox عشان الـ iframe يفتح اللي هو عايزه
                 iframe.removeAttribute('sandbox');
-                btn.innerText = '🛡️ المانع (مقفول)';
-                btn.classList.add('disabled');
+                btns.forEach(btn => {
+                    btn.innerText = '⚠️ Deny Popups (ملغي)';
+                    btn.classList.add('disabled');
+                });
             }
         }
 
@@ -792,13 +802,11 @@
                         }
                     });
                     
-                    // محاولة التشغيل الفوري لضمان تسجيل التفاعل
                     let initPlay = video.play();
                     if (initPlay !== undefined) {
                         initPlay.catch(e => {}); 
                     }
                 } else if (video.canPlayType('application/vnd.apple.mpegurl') && linkToPlay.includes('.m3u8')) {
-                    // تشغيل تلقائي لسفاري والأجهزة اللي بتدعم HLS بشكل أساسي
                     video.src = linkToPlay;
                     let playPromise = video.play();
                     if (playPromise !== undefined) {
