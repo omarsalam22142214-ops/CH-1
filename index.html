@@ -47,6 +47,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s;
+            touch-action: manipulation;
         }
 
         .nav-buttons {
@@ -65,6 +66,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s;
+            touch-action: manipulation;
         }
 
         /* ستايل مدخل الثواني الجديد */
@@ -123,6 +125,7 @@
             font-weight: bold;
             transition: 0.3s;
             flex-shrink: 0;
+            touch-action: manipulation;
         }
 
         .tab-btn.active {
@@ -302,7 +305,7 @@
 <style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style><style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style></head>
 <body>
 
-    <button id="toggleHeaderBtn" class="toggle-header-btn" onclick="toggleHeaderVisibility()">  🔼</button>
+    <button id="toggleHeaderBtn" class="toggle-header-btn" onclick="toggleHeaderVisibility()">إخفاء الشريط 🔼</button>
 
     <div class="player-header" id="mainPlayerHeader" style="display: flex;">
         <div class="top-controls">
@@ -463,7 +466,7 @@
 
     <div class="video-wrapper">
         <iframe id="iframePlayer" src="" allowfullscreen="" style="display: none;" sandbox="allow-scripts allow-same-origin"></iframe>
-        <video id="videoPlayer" controls="" autoplay="" style="display: none;"></video>
+        <video id="videoPlayer" controls="" autoplay="" playsinline="" style="display: none;"></video>
     </div>
 
     <div id="selectionBar" class="selection-bar">
@@ -752,7 +755,9 @@
             video.pause();
             video.removeAttribute('src');
             video.load();
-            if (window.hls) window.hls.destroy();
+            if (window.hls) {
+                try { window.hls.destroy(); } catch(e) {}
+            }
 
             let linkToPlay = originalLink;
             if (linkToPlay.endsWith('.ts')) {
@@ -763,16 +768,36 @@
                 activeLinkType = 'video';
                 iframe.style.display = 'none';
                 video.style.display = 'block';
+                
                 if (Hls.isSupported() && linkToPlay.includes('.m3u8')) {
                     window.hls = new Hls();
                     window.hls.loadSource(linkToPlay);
                     window.hls.attachMedia(video);
                     window.hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        video.play().catch(e => {});
+                        let playPromise = video.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(e => {});
+                        }
                     });
+                    
+                    // محاولة التشغيل الفوري لضمان تسجيل التفاعل
+                    let initPlay = video.play();
+                    if (initPlay !== undefined) {
+                        initPlay.catch(e => {}); 
+                    }
+                } else if (video.canPlayType('application/vnd.apple.mpegurl') && linkToPlay.includes('.m3u8')) {
+                    // تشغيل تلقائي لسفاري والأجهزة اللي بتدعم HLS بشكل أساسي
+                    video.src = linkToPlay;
+                    let playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => {});
+                    }
                 } else {
                     video.src = linkToPlay;
-                    video.play().catch(e => {});
+                    let playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => {});
+                    }
                 }
             } else {
                 activeLinkType = 'iframe';
@@ -796,7 +821,9 @@
             video.pause();
             video.removeAttribute('src');
             video.style.display = 'none';
-            if (window.hls) window.hls.destroy();
+            if (window.hls) {
+                try { window.hls.destroy(); } catch(e) {}
+            }
             document.getElementById('closeVid').style.display = 'none';
             document.getElementById('externalVid').style.display = 'none';
             document.getElementById('copyLinkBtn').style.display = 'none';
