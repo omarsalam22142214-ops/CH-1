@@ -22,8 +22,16 @@
 
         /* شريط التحكم العلوي للمشغل */
         .player-header {
-            background-color: #111;
-            border-bottom: 2px solid #222;
+            position: absolute; /* تعديل: خلى الشريط طايف فوق الفيديو */
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 100;
+            background-color: rgba(17, 17, 17, 0.5); /* تعديل: خلفية شفافة */
+            backdrop-filter: blur(8px); /* تعديل: تأثير زجاجي */
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding: 8px 10px;
             display: flex;
             flex-direction: column;
@@ -73,16 +81,16 @@
         .interval-input-group {
             display: flex;
             align-items: center;
-            background: #2c3e50;
+            background: rgba(44, 62, 80, 0.8);
             padding: 4px 8px;
             border-radius: 4px;
             gap: 5px;
-            border: 1px solid #34495e;
+            border: 1px solid rgba(52, 73, 94, 0.8);
         }
         .interval-input-group label { font-size: 12px; font-weight: bold; }
         .interval-input-group input { 
             width: 45px; 
-            background: #000; 
+            background: rgba(0, 0, 0, 0.5); 
             color: #2ecc71; 
             border: 1px solid #555; 
             border-radius: 3px; 
@@ -90,18 +98,18 @@
             font-weight: bold;
         }
 
-        .nav-btn { background-color: #3498db; }
+        .nav-btn { background-color: rgba(52, 152, 219, 0.9); }
         .nav-btn:hover { background-color: #2980b9; }
-        .rotate-btn { background-color: #9b59b6; }
+        .rotate-btn { background-color: rgba(155, 89, 182, 0.9); }
         .rotate-btn:hover { background-color: #8e44ad; }
-        .close-top-btn { background-color: #c0392b; }
+        .close-top-btn { background-color: rgba(192, 57, 43, 0.9); }
         .close-top-btn:hover { background-color: #e74c3c; }
-        .external-top-btn { background-color: #8e44ad; }
+        .external-top-btn { background-color: rgba(142, 68, 173, 0.9); }
         .external-top-btn:hover { background-color: #9b59b6; }
-        .copy-top-btn { background-color: #f39c12; color: #000; }
+        .copy-top-btn { background-color: rgba(243, 156, 18, 0.9); color: #000; }
         .copy-top-btn:hover { background-color: #e67e22; color: white; }
-        .adblock-btn { background-color: #27ae60; }
-        .adblock-btn.disabled { background-color: #c0392b; }
+        .adblock-btn { background-color: rgba(39, 174, 96, 0.9); }
+        .adblock-btn.disabled { background-color: rgba(192, 57, 43, 0.9); }
 
         .tabs-container {
             display: flex;
@@ -112,10 +120,10 @@
         }
         
         .tabs-container::-webkit-scrollbar { height: 6px; }
-        .tabs-container::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        .tabs-container::-webkit-scrollbar-thumb { background: rgba(68, 68, 68, 0.8); border-radius: 4px; }
 
         .tab-btn {
-            background-color: #008b8b;
+            background-color: rgba(0, 139, 139, 0.9);
             color: white;
             border: none;
             padding: 6px 15px;
@@ -144,7 +152,7 @@
         .video-wrapper {
             position: relative;
             width: 100%;
-            height: 60vh;
+            flex: 1; /* تعديل: عشان يملى الشاشة ورا الشريط الشفاف */
             background-color: #000;
         }
 
@@ -257,8 +265,10 @@
             bottom: -100px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #1a1a1a;
-            border: 2px solid #f39c12;
+            background-color: rgba(26, 26, 26, 0.85); /* تعديل: شريط التحديد برضه شفاف زجاجي */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 2px solid rgba(243, 156, 18, 0.7);
             border-radius: 10px;
             padding: 10px 15px;
             display: flex;
@@ -288,9 +298,11 @@
             top: 10px;
             left: 10px;
             z-index: 9999;
-            background-color: #34495e;
+            background-color: rgba(52, 73, 94, 0.8);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             color: white;
-            border: 1px solid #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 6px 12px;
             font-size: 13px;
             border-radius: 4px;
@@ -299,20 +311,20 @@
             transition: 0.3s;
             box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
-        .toggle-header-btn:hover { background-color: #2c3e50; }
+        .toggle-header-btn:hover { background-color: rgba(44, 62, 80, 0.9); }
 
     </style>
 <style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style><style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style></head>
 <body>
 
-    <button id="toggleHeaderBtn" class="toggle-header-btn" onclick="toggleHeaderVisibility()">إخفاء الشريط 🔼</button>
+    <button id="toggleHeaderBtn" class="toggle-header-btn" onclick="toggleHeaderVisibility()">إخفاء  🔼</button>
 
     <div class="player-header" id="mainPlayerHeader" style="display: flex;">
         <div class="top-controls">
             <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                 <button class="admin-btn" onclick="openModal()">⚙️ التعديل</button>
-                <button class="admin-btn" style="background-color: #2c3e50; color: white;" onclick="openBulkEditModal()">📝 تعديل الكود</button>
-                <button id="selectModeBtn" class="admin-btn" style="background-color: rgb(142, 68, 173); color: white;" onclick="toggleSelectionMode()">☑️ تحديد القنوات</button>
+                <button class="admin-btn" style="background-color: rgba(44, 62, 80, 0.9); color: white;" onclick="openBulkEditModal()">📝 تعديل الكود</button>
+                <button id="selectModeBtn" class="admin-btn" style="background-color: rgba(142, 68, 173, 0.9); color: white;" onclick="toggleSelectionMode()">☑️ تحديد القنوات</button>
             </div>
             
             <div class="nav-buttons">
@@ -325,7 +337,7 @@
                 <button id="externalVid" class="external-top-btn" onclick="openExternal()" style="display: none;">خارجي ↗</button>
                 <button id="copyLinkBtn" class="copy-top-btn" onclick="copyCurrentLink()" style="display: none;">نسخ الرابط 🔗</button>
                 
-                <button id="autoSwitchBtn" class="nav-btn" onclick="toggleAutoSwitch()" style="background-color: rgb(230, 126, 34);">تقليب تلقائي ⏱️</button>
+                <button id="autoSwitchBtn" class="nav-btn" onclick="toggleAutoSwitch()" style="background-color: rgba(230, 126, 34, 0.9);">تقليب تلقائي ⏱️</button>
 
                 <button class="nav-btn" onclick="prevStream()">الســـــــــــــــــــابق ⏮️</button>
                 <button class="nav-btn" onclick="nextStream()">التـــــــــــــــــــــــــــــــــــــــــــــالي ⏭️</button>
@@ -567,11 +579,11 @@
             if (autoSwitchInterval) {
                 clearInterval(autoSwitchInterval);
                 autoSwitchInterval = null;
-                btn.style.backgroundColor = '#e67e22'; 
+                btn.style.backgroundColor = 'rgba(230, 126, 34, 0.9)'; 
                 btn.innerText = 'تقليب تلقائي ⏱️';
             } else {
                 remainingSeconds = intervalVal; 
-                btn.style.backgroundColor = '#27ae60'; 
+                btn.style.backgroundColor = 'rgba(39, 174, 96, 0.9)'; 
                 btn.innerText = `شغال (${remainingSeconds}) ⏱️`;
                 
                 autoSwitchInterval = setInterval(() => {
@@ -591,11 +603,11 @@
             let selectBtn = document.getElementById('selectModeBtn');
             if (isSelectionMode) {
                 bar.classList.add('active');
-                selectBtn.style.backgroundColor = '#e74c3c';
+                selectBtn.style.backgroundColor = 'rgba(231, 76, 60, 0.9)';
                 selectBtn.innerText = 'إلغاء وضع التحديد';
             } else {
                 bar.classList.remove('active');
-                selectBtn.style.backgroundColor = '#8e44ad';
+                selectBtn.style.backgroundColor = 'rgba(142, 68, 173, 0.9)';
                 selectBtn.innerText = '☑️ تحديد القنوات';
                 document.querySelectorAll('.tab-btn.selected-channel').forEach(b => b.classList.remove('selected-channel'));
                 document.getElementById('selectAllCheckbox').checked = false;
