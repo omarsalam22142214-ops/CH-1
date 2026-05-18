@@ -98,6 +98,31 @@
             font-weight: bold;
         }
 
+        /* ستايل مدخل التشغيل المباشر الجديد */
+        .direct-input-group {
+            display: flex;
+            align-items: center;
+            background: rgba(44, 62, 80, 0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+            gap: 5px;
+            border: 1px solid rgba(52, 73, 94, 0.8);
+        }
+        .direct-input-group input {
+            width: 150px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 3px;
+            padding: 4px;
+            font-size: 12px;
+            direction: ltr;
+        }
+        .direct-input-group input::placeholder {
+            color: #aaa;
+            direction: rtl;
+        }
+
         .nav-btn { background-color: rgba(52, 152, 219, 0.9); }
         .nav-btn:hover { background-color: #2980b9; }
         .rotate-btn { background-color: rgba(155, 89, 182, 0.9); }
@@ -339,12 +364,15 @@
                     <input type="number" id="autoSwitchIntervalInput" value="20" min="5" max="60" onchange="updateAutoSwitchInterval()" data-ddg-inputtype="unknown">
                 </div>
 
-                <!-- تم إضافة زراير الزوم هنا بتنسيق أزرار الشريط -->
+                <div class="direct-input-group">
+                    <input type="text" id="directLinkInput" placeholder="رابط m3u8 أو صفحة...">
+                    <button class="nav-btn" style="padding: 4px 8px; font-size: 12px; background-color: #8e44ad;" onclick="playDirectLink()">▶️ تشغيل</button>
+                </div>
+
                 <button id="zoomInBtn" class="nav-btn" style="background-color: #34495e;" title="تكبير">تكبير ➕</button>
                 <button id="zoomOutBtn" class="nav-btn" style="background-color: #34495e;" title="تصغير">تصغير ➖</button>
                 <button id="zoomResetBtn" class="nav-btn" style="background-color: #7f8c8d; color: white;" title="الوضع الافتراضي">100%</button>
 
-                <!-- الإبقاء على حالة display: none; الافتراضية عشان ميظهروش إلا لما تشغل قناة -->
                 <button id="closeVid" class="close-top-btn" onclick="closePlayer()" style="display: none;">إغلاق ✖</button>
                 <button id="externalVid" class="external-top-btn" onclick="openExternal()" style="display: none;">خارجي ↗</button>
                 <button id="copyLinkBtn" class="copy-top-btn" onclick="copyCurrentLink()" style="display: none;">نسخ الرابط 🔗</button>
@@ -354,11 +382,10 @@
                 <button class="nav-btn" onclick="prevStream()">الســـــــــــــــــــابق ⏮️</button>
                 <button class="nav-btn" onclick="nextStream()">التـــــــــــــــــــــــــــــــــــــــــــــالي ⏭️</button>
                 <button class="rotate-btn" onclick="toggleRotation()">تدوير 🔄</button>
-                <!-- زرار Deny Popups الأول -->
+                
                 <button class="adblock-btn deny-btn" onclick="toggleDenyPopups()">🚫 Deny Popups (مفعل)</button>
             </div>
 
-            <!-- زرار Deny Popups الثاني -->
             <button class="adblock-btn deny-btn" onclick="toggleDenyPopups()">🚫 Deny Popups (مفعل)</button>
         </div>
 
@@ -504,6 +531,7 @@
         <button class="s-btn s-dup-btn" onclick="duplicateSelected()">تكرار 📑</button>
         <button class="s-btn s-link-btn" onclick="copySelectedLinks()">روابط 🔗</button>
         <button class="s-btn s-code-btn" onclick="copySelectedCodes()">أكواد 📄</button>
+        <button class="s-btn" style="background-color: #16a085; color: white;" onclick="exportSelectedToM3U()">M3U8 📥</button>
         <button class="s-btn s-del-btn" onclick="deleteSelected()">حذف 🗑️</button>
         <button class="s-btn s-close-btn" onclick="toggleSelectionMode()">إغلاق ❌</button>
     </div>
@@ -550,6 +578,7 @@
                 <button class="add-channel-btn" onclick="addNewChannel()">➕ إضافة قناة بث جديدة</button>
                 <button class="download-btn" onclick="downloadFullFile()">💾 حفظ الملف</button>
                 <button class="copy-btn" onclick="copyFullCode()">📋 نسخ الكود</button>
+                <button class="download-btn" style="background-color: #16a085;" onclick="exportToM3U()">📁 تحميل M3U8</button>
             </div>
         </div>
     </div>
@@ -559,6 +588,21 @@
         let autoSwitchInterval = null; 
         let remainingSeconds = 20; 
         let activeLinkType = 'iframe'; 
+
+        // === دالة التشغيل المباشر من اللينك ===
+        function playDirectLink() {
+            let link = document.getElementById('directLinkInput').value.trim();
+            if (!link) {
+                alert("حط الرابط الأول عشان يشتغل!");
+                return;
+            }
+            // إنشاء زرار وهمي عشان دالة التشغيل تفهمه
+            let tempBtn = document.createElement("button");
+            tempBtn.setAttribute("data-link", link);
+            tempBtn.setAttribute("data-open", "internal");
+            playStream(tempBtn);
+        }
+        // ===================================
 
         // === تفعيل الزوم ===
         let currentZoom = 1;
@@ -871,7 +915,10 @@
             document.getElementById('externalVid').style.display = 'inline-block';
             document.getElementById('copyLinkBtn').style.display = 'inline-block';
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
+            // التحقق عشان لو زرار وهمي من التشغيل المباشر مايعملش خطأ
+            if(btnElement.id) {
+                btnElement.classList.add('active');
+            }
         }
 
         function closePlayer() {
@@ -894,11 +941,21 @@
         function openExternal() {
             let activeBtn = document.querySelector('.tab-btn.active');
             if (activeBtn) window.open(activeBtn.getAttribute('data-link'), '_blank');
+            else {
+                // لو كان شغال من الرابط المباشر ومافيش زرار active
+                let directLink = document.getElementById('directLinkInput').value.trim();
+                if(directLink) window.open(directLink, '_blank');
+            }
         }
 
         function copyCurrentLink() {
             let activeBtn = document.querySelector('.tab-btn.active');
             if (activeBtn) triggerCopy(activeBtn.getAttribute('data-link'), "تم النسخ!");
+            else {
+                // لو كان شغال من الرابط المباشر
+                let directLink = document.getElementById('directLinkInput').value.trim();
+                if(directLink) triggerCopy(directLink, "تم النسخ!");
+            }
         }
 
         function openModal() {
@@ -974,6 +1031,46 @@
             closeModal();
             let content = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
             triggerCopy(content, "تم نسخ الكود بالكامل!");
+        }
+
+        // --- دالة استخراج كل القنوات لملف M3U8 ---
+        function exportToM3U() {
+            closeModal();
+            let m3uContent = "#EXTM3U\n";
+            document.querySelectorAll('#mainTabs .tab-btn:not(#autoFetchBtn)').forEach(btn => {
+                let name = btn.innerText.trim();
+                let link = btn.getAttribute('data-link');
+                if (link) {
+                    m3uContent += `#EXTINF:-1,${name}\n${link}\n`;
+                }
+            });
+
+            let blob = new Blob([m3uContent], { type: 'audio/x-mpegurl' });
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'playlist.m3u8';
+            a.click();
+        }
+
+        // --- دالة استخراج القنوات المحددة بس لملف M3U8 ---
+        function exportSelectedToM3U() {
+            let selected = document.querySelectorAll('#mainTabs .tab-btn.selected-channel');
+            if (selected.length === 0) { alert("حدد قنوات الأول عشان تعملها ملف M3U8!"); return; }
+            
+            let m3uContent = "#EXTM3U\n";
+            selected.forEach(btn => {
+                let name = btn.innerText.trim();
+                let link = btn.getAttribute('data-link');
+                if (link) {
+                    m3uContent += `#EXTINF:-1,${name}\n${link}\n`;
+                }
+            });
+
+            let blob = new Blob([m3uContent], { type: 'audio/x-mpegurl' });
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'selected_playlist.m3u8';
+            a.click();
         }
 
         function nextStream() {
